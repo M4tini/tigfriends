@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TIG Friends</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body { margin:0; background:url(tigfamousbg.jpg); }
+            #head { position:absolute; top:0; width:100%; height:56px; background:#44AB53; }
+            #post { width:860px; height:666px; margin:0 auto; background:#fff; }
+            canvas { position:absolute; top:0; margin-top:200px !important; }
+            iframe { display:block; width:337px; height:37px; margin:10px auto 0; }
+        </style>
+        <!-- used jQuery for YouTube music only, canvas is native JS, them deadlines... -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    </head>
+    <body>
+        <div id="head"></div>
+        <div id="post"></div>
+
+<div id="tini_yt" style="display:none;"><div id="tini_player"></div></div>
+<script>
+/*                  _____
+     _____  _____  /    /____  ___
+    |     \/     |/    /    /_|   |_ ___ ______  ___
+    |            /    /    /\__   __|___|      \|___|
+    |   \    /  /____     ___/|   | |   |   |   |   |
+    |___|\__/|___|  /    /    |____\|___|___|___|___|
+                   /____/     Created by: M4tini.com
+*/
+
+// polyfill
+var vendors = ['ms', 'moz', 'webkit', 'o'];
+for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x){
+    window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+}
+if(!window.requestAnimationFrame){
+    var lastTime = 0,
+    requestAnimationFrame = function(callback){
+        var currTime = new Date().getTime();
+        var timeToCall = Math.max(0, 16.6 - (currTime - lastTime));
+        window.setTimeout(function(){
+            callback(lastTime = currTime + timeToCall);
+        }, timeToCall);
+    }
+}
+
+function shuffle(a)
+{
+    var j, x, i;
+    for (i = a.length; i; i -= 1) {
+        j = Math.floor(Math.random() * i);
+        x = a[i - 1];
+        a[i - 1] = a[j];
+        a[j] = x;
+    }
+}
+
+// cache globals
+var body = document.body,
+    width = window.innerWidth,
+    height = window.innerHeight
+    tiniSources = 1;
+
+// tini preparation
+var tini = document.getElementById('tini');
+if(undefined == tini)
+{
+    tini = document.createElement('canvas');
+    tini.id = 'tini';
+    tini.innerHTML = 'Update your browser to FireFox, Chrome or Internet Explorer 9 or higher';
+    body.appendChild(tini);
+}
+var tini_parent = tini.parentNode;
+var tini_width = 800;
+var tini_height = 200;
+var tini_top = height / 2 - tini_height / 2;
+var tini_left = width / 2 - tini_width / 2;
+var tini_style = tini.style;
+tini_style.marginTop = tini_top + 'px';
+tini_style.marginLeft = tini_left + 'px';
+
+// prepare canvas
+var ctx = tini.getContext('2d');
+ctx.canvas.width = tini_width;
+ctx.canvas.height = tini_height;
+ctx.lineWidth = 3;
+ctx.font = 'bold 18px Courier,sans-serif';
+ctx.fillStyle = '#fff';
+ctx.fillText('LOADING', tini_width / 2 - ctx.measureText('LOADING').width / 2, tini_height / 2);
+
+// make nice
+//document.title = 'underpl snake';
+//var body_style = body.style;
+//body_style.margin = 0;
+//body_style.background = '#444';
+tini_style.cursor = 'pointer';
+
+// tini snake
+function dirX(x) { return x == (tini_width  - upl_margin) || x == upl_margin; }
+function dirY(y) { return y == (tini_height - upl_margin) || y == upl_margin; }
+function addX(x, swap) { if(swap) upl_xd *= -1; return (1 == upl_xd) ? x + upl_speed : x - upl_speed; }
+function addY(y, swap) { if(swap) upl_yd *= -1; return (1 == upl_yd) ? y + upl_speed : y - upl_speed; }
+var upl_margin = 4,
+    upl_speed = 2,
+    upl_x1 = 2 * upl_margin,
+    upl_x2 = tini_height - upl_x1,
+    upl_xd = 1,
+    upl_y1 = upl_margin,
+    upl_y2 = upl_margin,
+    upl_yd = -1;
+
+function tiniSnake(thisLoop)
+{
+    // calc lines
+    ctx.beginPath();
+    ctx.moveTo(upl_x1, upl_y1); // tail
+    if(upl_y1 != upl_y2)
+    {
+        if(1 == upl_xd * upl_yd) {
+            ctx.lineTo(upl_x2, upl_y1); // corner
+        } else {
+            ctx.lineTo(upl_x1, upl_y2); // corner
+        }
+    }
+    ctx.lineTo(upl_x2, upl_y2); // head
+    // draw lines
+    snakeGrad = ctx.createLinearGradient(upl_x1, upl_y1, upl_x2, upl_y2);
+    snakeGrad.addColorStop(0, 'rgba(255,255,255,0)');
+    snakeGrad.addColorStop(1, 'rgba(255,255,255,1)');
+    ctx.strokeStyle = snakeGrad;
+    ctx.stroke();
+
+    // move snake
+    if(!dirX(upl_x1)) // tail horizontal
+    {
+        upl_x1 = addX(upl_x1);
+        if(dirX(upl_x1)) upl_y1 = addY(upl_y1);
+    }
+    if(!dirY(upl_y1)) // tail vertical
+    {
+        upl_y1 = addY(upl_y1);
+        if(dirY(upl_y1)) upl_x1 = addX(upl_x1);
+    }
+    if(!dirX(upl_x2)) // head horizontal
+    {
+        upl_x2 = addX(upl_x2);
+        if(dirX(upl_x2)) upl_y2 = addY(upl_y2, true);
+    }
+    if(!dirY(upl_y2)) // head vertical
+    {
+        upl_y2 = addY(upl_y2);
+        if(dirY(upl_y2)) upl_x2 = addX(upl_x2, true);
+    }
+}
+
+// tini dots
+var dotImg = new Image(),
+    dotColors = [],
+    dotObjects = [],
+    dotMaxElements = 0,
+    frameNeedsUpdate = 1,
+    frameCurrent = 0,
+    frameNext = 0,
+    dotPixelWidth = 4,
+    dotPixelMargin = 6;
+
+dotImg.src = 'tigfriends.png';
+dotImg.onload = function(){
+    imgWidth = dotImg.width;
+    imgHeight = dotImg.height;
+    imgRowHeight = 8;
+    imgRows = imgHeight / imgRowHeight;
+    precalcDots();
+    tiniSources--;
+}
+
+function precalcDots()
+{
+    canv = document.createElement('canvas').getContext('2d');
+    canv.drawImage(dotImg, 0, 0);
+    dotImgData = canv.getImageData(0, 0, imgWidth, imgHeight).data;
+
+    for(var i = 0; i < imgRows; i++)
+    {
+        rand1 = {
+            x: Math.random(),
+            y: Math.random()
+        };
+        var dotobj1 = [];
+        for(var y = i * imgRowHeight, y2 = y + imgRowHeight; y < y2; y++)
+        {
+            for(var x = 0; x < imgWidth; x++)
+            {
+                var index = (y * imgWidth + x) * 4; // rgba = 4
+                if(dotImgData[index + 3] != 0)
+                {
+                    dotobj1.push({
+                        x: x,
+                        y: y - i * imgRowHeight,
+                        a: dotImgData[index + 3] / 255,
+                        rx: 5 + rand1.x * (tini_width  - 5 - imgWidth * dotPixelMargin),
+                        ry: 5 + rand1.y * (tini_height - 5 - imgRowHeight * dotPixelMargin)
+                    });
+                }
+            }
+        }
+        dotObjects[i] = dotobj1;
+        if(dotobj1.length > dotMaxElements)
+        {
+            dotMaxElements = dotobj1.length;
+        }
+    }
+    // fill shorter objects with empty elements
+    for(var i = 0, j = dotObjects.length; i < j; i++)
+    {
+        for(var k = dotObjects[i].length; k < dotMaxElements; k++)
+        {
+            var clone = dotObjects[i][0];
+            dotObjects[i].push({
+                x: clone.x,
+                y: clone.y,
+                a: 0,
+                rx: clone.rx,
+                ry: clone.ry
+            });
+        }
+    }
+    // calc color for every dot
+    for(var i = 0; i < dotMaxElements; i++)
+    {
+        dotColors.push(200 + parseInt(Math.random() * 55));
+    }
+    shuffle(dotObjects);
+}
+
+function drawObjectPixel(obj, i)
+{
+    ctx.fillStyle = 'rgba(' + dotColors[i] + ',' + dotColors[i] + ',' + dotColors[i] + ',' + obj.a + ')';
+    ctx.fillRect(obj.x * dotPixelMargin + obj.rx, obj.y * dotPixelMargin + obj.ry, dotPixelWidth, dotPixelWidth);
+}
+
+function tiniDotShift(thisLoop)
+{
+    secondsPassed = parseInt(thisLoop / 1000);
+    frame = secondsPassed % 3;
+
+    // show object 1
+    if(frame == 0 || frame == 1)
+    {
+        // set next object if allowed
+        if(frameNeedsUpdate == 1)
+        {
+            frameCurrent = frameNext;
+            frameNext = frameCurrent + 1;
+            if(frameNext >= dotObjects.length)
+            {
+                frameNext = 0;
+            }
+
+            dotobj1 = dotObjects[frameCurrent];
+            dotobj2 = dotObjects[frameNext];
+            shuffle(dotobj2);
+
+            frameNeedsUpdate = 0;
+        }
+        // draw pixels
+        for(var i = 0; i < dotobj1.length; i++)
+        {
+            drawObjectPixel(dotobj1[i], i);
+        }
+    }
+    // move object 1 to object 2
+    if(frame == 2)
+    {
+        // calculate shift
+        var fact1 = (parseInt(thisLoop) - secondsPassed * 1000) / 1000,
+            fact2 = 1 - fact1;
+
+        // draw pixels
+        for(var i = 0, j = dotobj1.length; i < j; i++)
+        {
+            drawObjectPixel({
+                x:  dotobj1[i].x  * fact2 + dotobj2[i].x  * fact1,
+                y:  dotobj1[i].y  * fact2 + dotobj2[i].y  * fact1,
+                a:  dotobj1[i].a  * fact2 + dotobj2[i].a  * fact1,
+                rx: dotobj1[i].rx * fact2 + dotobj2[i].rx * fact1,
+                ry: dotobj1[i].ry * fact2 + dotobj2[i].ry * fact1
+            }, i);
+        }
+        // allow next object
+        frameNeedsUpdate = 1;
+    }
+}
+
+function tiniBackground(thisLoop)
+{
+    ctx.fillStyle = '#308D3D';
+    ctx.fillRect(50, 25, tini_width - 100, tini_height - 50);
+
+    // left
+    bgGrad = ctx.createLinearGradient(0, 0, 50, 0);
+    bgGrad.addColorStop(0, '#44AB53');
+    bgGrad.addColorStop(1, '#308D3D');
+    ctx.fillStyle = bgGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(50, 25);
+    ctx.lineTo(50, tini_height - 25);
+    ctx.lineTo(0, tini_height);
+    ctx.fill();
+
+    // right
+    bgGrad = ctx.createLinearGradient(tini_width, 0, tini_width - 50, 0);
+    bgGrad.addColorStop(0, '#44AB53');
+    bgGrad.addColorStop(1, '#308D3D');
+    ctx.fillStyle = bgGrad;
+    ctx.beginPath();
+    ctx.moveTo(tini_width, 0);
+    ctx.lineTo(tini_width - 50, 25);
+    ctx.lineTo(tini_width - 50, tini_height - 25);
+    ctx.lineTo(tini_width, tini_height);
+    ctx.fill();
+
+    // top
+    bgGrad = ctx.createLinearGradient(0, 0, 0, 25);
+    bgGrad.addColorStop(0, '#44AB53');
+    bgGrad.addColorStop(1, '#308D3D');
+    ctx.fillStyle = bgGrad;
+    ctx.beginPath();
+    ctx.moveTo(tini_width, 0);
+    ctx.lineTo(tini_width - 50, 25);
+    ctx.lineTo(50, 25);
+    ctx.lineTo(0, 0);
+    ctx.fill();
+
+    // bot
+    bgGrad = ctx.createLinearGradient(0, tini_height, 0, tini_height - 25);
+    bgGrad.addColorStop(0, '#44AB53');
+    bgGrad.addColorStop(1, '#308D3D');
+    ctx.fillStyle = bgGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, tini_height);
+    ctx.lineTo(50, tini_height - 25);
+    ctx.lineTo(tini_width - 50, tini_height - 25);
+    ctx.lineTo(tini_width, tini_height);
+    ctx.fill();
+    
+    // shadow message
+    ctx.fillStyle = '#44AB53';
+    if(tini_yt_play == 0) {
+    	ctx.fillText('Good morning!',                                                     330, tini_height / 2 - 60);
+    	ctx.fillText('This will probably be the last JavaScript injected into Famous :)', 49,  tini_height / 2 - 40);
+    	ctx.fillText('~ click for some demoscene music ~',                                216, tini_height / 2);
+    	ctx.fillText('Thanks for all the wonderful moments <3',                           189, tini_height / 2 + 40);
+    	ctx.fillText('Greetz fly out to:',                                                303, tini_height / 2 + 60);
+    } else {
+    	ctx.fillText('                _____',                               135, tini_height / 2 - 60);
+    	ctx.fillText(' _____  _____  /    /____  ___',                      135, tini_height / 2 - 40);
+    	ctx.fillText('|     \\/     |/    /    /_|   |_ ___ ______  ___',   135, tini_height / 2 - 20);
+    	ctx.fillText('|            /    /    /\\__   __|___|      \\|___|', 135, tini_height / 2);
+    	ctx.fillText('|   \\    /  /____     ___/|   | |   |   |   |   |',  135, tini_height / 2 + 20);
+    	ctx.fillText('|___|\\__/|___|  /    /    |____\\|___|___|___|___|', 135, tini_height / 2 + 40);
+    	ctx.fillText('               /____/      Created by M4tini.com',    135, tini_height / 2 + 60);
+    }
+}
+
+function tiniLoop(thisLoop)
+{
+    // background
+    tiniBackground(thisLoop);
+    // snake
+    tiniSnake(thisLoop);
+    // dot images
+    tiniDotShift(thisLoop);
+    // loop
+	requestAnimationFrame(tiniLoop);
+}
+
+function tiniWaitForSources()
+{
+    if(tiniSources == 0)
+    {
+        clearInterval(tiniSourceInterval);
+        requestAnimationFrame(tiniLoop);
+    }
+}
+tiniSourceInterval = setInterval(tiniWaitForSources, 137);
+
+// click music - quick and dirty jQuery for Famous release
+var tini_yt_play = 0;
+$('#tini').click(function(){
+	tini_yt_play = (tini_yt_play == 0) ? 1 : 0;
+	if(tini_yt_play == 1) {
+		player.playVideo();
+	} else {
+		player.pauseVideo();
+	}
+});
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+var player;
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('tini_player', {
+        height: '390',
+        width: '640',
+        videoId: 'ANDQoEl2StM',
+        events: {
+            'onReady': function(e) {
+			    e.target.playVideo();
+			    e.target.pauseVideo();
+			},
+            'onStateChange': function(e) {
+		        if (e.data === YT.PlayerState.ENDED) {
+		            player.playVideo(); 
+		        }
+			}
+        }
+    });
+}
+</script>
+
+
+    </body>
+</html>
