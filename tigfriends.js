@@ -334,7 +334,7 @@ function tiniBackground(thisLoop)
     
     // shadow message
     ctx.fillStyle = '#44AB53';
-    if(tini_yt_play == 0) {
+    if(tini_audio_play == 0) {
     	ctx.fillText('Good morning!',                                                     330, tini_height / 2 - 60);
     	ctx.fillText('This will probably be the last JavaScript injected into Famous :)', 49,  tini_height / 2 - 40);
     	ctx.fillText('~ click for some demoscene music ~',                                216, tini_height / 2);
@@ -348,6 +348,29 @@ function tiniBackground(thisLoop)
     	ctx.fillText('|   \\    /  /____     ___/|   | |   |   |   |   |',  135, tini_height / 2 + 20);
     	ctx.fillText('|___|\\__/|___|  /    /    |____\\|___|___|___|___|', 135, tini_height / 2 + 40);
     	ctx.fillText('               /____/      Created by M4tini.com',    135, tini_height / 2 + 60);
+    }
+}
+
+// audio setup
+var audio = document.createElement('audio'),
+    tini_audio_play = 0;
+//audio.controls = 'controls';
+audio.volume = '1';
+audio.loop = 'loop';
+audio.preload = 'auto';
+var source = document.createElement('source');
+source.src = 'Reloaded_Installer_10.mp3';
+audio.appendChild(source);
+source = source.cloneNode(true);
+source.src = 'Reloaded_Installer_10.ogg';
+audio.appendChild(source);
+body.appendChild(audio);
+tini.onclick = function(){
+    tini_audio_play = (tini_audio_play == 0) ? 1 : 0;
+    if(tini_audio_play == 1) {
+        audio.play();
+    } else {
+    	audio.pause();
     }
 }
 

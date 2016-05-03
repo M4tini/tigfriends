@@ -6,44 +6,5 @@
     </head>
     <body>
         <script src="tigfriends.js"></script>
-
-        <!-- used jQuery for YouTube music only, canvas is native JS, them deadlines... -->
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-        <div style="display:none;"><div id="tini_player"></div></div>
-        <script>
-            // click music - quick and dirty jQuery for Famous release
-            var tini_yt_play = 0;
-            $('#tini').click(function(){
-                tini_yt_play = (tini_yt_play == 0) ? 1 : 0;
-                if(tini_yt_play == 1) {
-                    player.playVideo();
-                } else {
-                    player.pauseVideo();
-                }
-            });
-            var tag = document.createElement('script');
-            tag.src = "https://www.youtube.com/iframe_api";
-            var firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-            var player;
-            function onYouTubeIframeAPIReady() {
-                player = new YT.Player('tini_player', {
-                    height: '390',
-                    width: '640',
-                    videoId: 'ANDQoEl2StM',
-                    events: {
-                        'onReady': function(e) {
-                            e.target.playVideo();
-                            e.target.pauseVideo();
-                        },
-                        'onStateChange': function(e) {
-                            if (e.data === YT.PlayerState.ENDED) {
-                                player.playVideo();
-                            }
-                        }
-                    }
-                });
-            }
-        </script>
     </body>
 </html>
